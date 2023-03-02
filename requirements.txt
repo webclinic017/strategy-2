@@ -1,0 +1,10 @@
+pandas
+akshare
+backtrader
+fastapi
+uvicorn[standard]
+gunicorn
+redis
+numpy
+pydantic
+python-dotenv
