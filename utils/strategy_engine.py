@@ -37,7 +37,8 @@ class MAStrategy(MyBaseStrategy):
         self.long_ma = bt.indicators.SMA(self.datas[0].close, period=self.long_window)
 
     def next(self):
-        size = self.getposition(self.datas[0]).size
+
+        size = self.position.size
         # 做多
         if (
             size == 0
@@ -46,7 +47,7 @@ class MAStrategy(MyBaseStrategy):
         ):
             # 1手=100股，满仓买入
             if len(self.data) < self.data.buflen():
-                ss = int((self.broker.getcash() / 100) / self.datas[0].close[1]) * 100
+                ss = int((self.broker.get_cash() * (1-self.broker.comminfo[None].p.commission) / 100) / self.datas[0].open[1]) * 100
                 self.order = self.buy(self.data, size=ss)
         # 平多
         if (
@@ -57,44 +58,39 @@ class MAStrategy(MyBaseStrategy):
             self.close(self.datas[0])
 
 
-class BollStrategy(MyBaseStrategy):
-    # 可配置策略参数
-    params = dict(
-        # p_period_volume=10,  # 前n日最大交易量
-        # p_sell_ma=5,  # 跌破该均线卖出
-        p_oneplot=False,  # 是否打印到同一张图
-    )
+class BollingerBandsStrategy(MyBaseStrategy):
 
     def __init__(self):
-        self.inds = dict()
-        for i, d in enumerate(self.datas):
-            self.inds[d] = dict()
-            # 布林线中轨
-            boll_mid = bt.ind.BBands(d.close).mid
-            # 买入条件
-            self.inds[d]["buy_con"] = bt.And(
-                # 突破中轨
-                d.open < boll_mid,
-                d.close > boll_mid,
-                # 放量
-                d.volume
-                == bt.ind.Highest(d.volume, period=self.p_period_volume, plot=False),
-            )
-            # 卖出条件
-            self.inds[d]["sell_con"] = d.close < bt.ind.SMA(
-                d.close, period=self.p_sell_ma
-            )
+        self.bbands = bt.indicators.BollingerBands(
+            self.data.close,
+            period=self.period,
+            devfactor=self.devfactor
+        )
 
     def next(self):
-        for i, d in enumerate(self.datas):
-            dt, dn = self.datetime.date(), d._name  # 获取时间及股票代码
-            pos = self.getposition(d).size
-            if not pos:  # 不在场内，则可以买入
-                if self.inds[d]["buy_con"]:  # 如果金叉
-                    ss = (
-                        int((self.broker.getcash() / 100) / self.datas[0].close[1])
-                        * 100
-                    )
-                    self.buy(data=d, size=ss)  # 买买买
-            elif self.inds[d]["sell_con"]:  # 在场内，且死叉
-                self.close(data=d)  # 卖卖卖
+        if not self.position:  # 没有仓位
+            if self.data.close[0] < self.bbands.lines.bot[0]:  # 当价格低于布林带下轨时
+                # 预留手续费，例如佣金为0.1%，印花税为0.1%
+                ss = int((self.broker.get_cash() * (1-self.broker.comminfo[None].p.commission) / 100) / self.datas[0].open[1]) * 100
+                self.buy(self.data, size=ss)  # 全仓买入
+        elif self.data.close[0] > self.bbands.lines.top[0]:  # 当价格高于布林带上轨时
+            self.sell(size=self.position.size)  # 全仓卖出
+
+
+class KDJStrategy(MyBaseStrategy):
+
+    def __init__(self):
+        self.bbands = bt.indicators.BollingerBands(
+            self.data.close,
+            period=self.period,
+            devfactor=self.devfactor
+        )
+
+    def next(self):
+        if not self.position:  # 没有仓位
+            if self.data.close[0] < self.bbands.lines.bot[0]:  # 当价格低于布林带下轨时
+                # 预留手续费，例如佣金为0.1%，印花税为0.1%
+                ss = int((self.broker.get_cash() * (1-self.broker.comminfo[None].p.commission) / 100) / self.datas[0].open[1]) * 100
+                self.buy(self.data, size=ss)  # 全仓买入
+        elif self.data.close[0] > self.bbands.lines.top[0]:  # 当价格高于布林带上轨时
+            self.sell(size=self.position.size)  # 全仓卖出

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from redis import Redis
 
 from app.database import get_rdb
-from utils.strategy_engine import MAStrategy, BollStrategy
+from utils.strategy_engine import MAStrategy, BollingerBandsStrategy
 from utils.strategy_factory import create_class
 from utils.strategy_main import common_main
 
@@ -14,7 +14,7 @@ app = FastAPI()
 
 
 def _():
-    MAStrategy, BollStrategy
+    MAStrategy, BollingerBandsStrategy
     pass
 
 

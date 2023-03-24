@@ -13,4 +13,5 @@ class Settings(BaseSettings):
 class RDBSettings(Settings):
     host: str = os.environ["RDB_HOST"]
     port: int = os.environ["RDB_PORT"]
+    password: str = os.environ["RDB_PASSWORD"]
     db: int = os.environ["RDB_DB"]

@@ -59,11 +59,12 @@ def common_main(
     cerebro.addanalyzer(bt.analyzers.Returns, _name="Returns")
     cerebro.addanalyzer(bt.analyzers.AnnualReturn, _name="AnnualReturn")
     cerebro.addanalyzer(bt.analyzers.DrawDown, _name="DrawDown")
-    cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name="SharpeRatio")
+    cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name="SharpeRatio", timeframe=bt.TimeFrame.Days, compression=1, factor=252, annualize=True)
+    cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='TradeAnalyzer')
 
     # 添加分析者
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="TimeReturn")
-    cerebro.addanalyzer(bt.analyzers.Returns, _name="Returns")
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", timeframe=bt.TimeFrame.NoTimeFrame)
 
     results = cerebro.run()
     strategy_result = results[0]
@@ -71,8 +72,8 @@ def common_main(
     # 最终资金，收益率，最大回撤，夏普比率，年化收益率
     strategy_result_dict = {
         "result_asset": cerebro.broker.getvalue(),
-        "return": strategy_result.analyzers.Returns.get_analysis()["rtot"],
-        "max_drawdown": strategy_result.analyzers.DrawDown.get_analysis()["drawdown"],
+        "return": list(strategy_result.analyzers._TimeReturn.get_analysis().values())[0],
+        "max_drawdown": strategy_result.analyzers.DrawDown.get_analysis()['max']["drawdown"],
         "sharpe_ratio": strategy_result.analyzers.SharpeRatio.get_analysis()[
             "sharperatio"
         ],

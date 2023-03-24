@@ -1,7 +1,7 @@
 """
 类工厂
 """
-from utils.strategy_engine import MAStrategy, BollStrategy
+from utils.strategy_engine import MAStrategy, BollingerBandsStrategy
 
 
 def create_class(strategy_name, **kwargs):
@@ -15,4 +15,4 @@ def create_class(strategy_name, **kwargs):
 
 if __name__ == '__main__':
     print(MAStrategy)
-    print(BollStrategy)
+    print(BollingerBandsStrategy)

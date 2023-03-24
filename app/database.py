@@ -11,7 +11,7 @@ def get_rdb() -> Redis:
     :return: 外汇 symbol 和代码映射
     :rtype: dict
     """
-    pool = ConnectionPool(host=rdb_settings.host, port=rdb_settings.port, db=rdb_settings.db)
+    pool = ConnectionPool(host=rdb_settings.host, port=rdb_settings.port, db=rdb_settings.db, password=rdb_settings.password)
     rdb = Redis(connection_pool=pool, decode_responses=True, encoding="utf-8")
     try:
         yield rdb
