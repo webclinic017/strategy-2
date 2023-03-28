@@ -43,11 +43,42 @@ def strategy(
     本接口主要通过 post 方法传入相关参数
     其中 data 的格式为：
     ```
+    MA 策略参数
     {
       "strategy_name": "MAStrategy",  # 策略名称，此处支持已有的参数模板
-      "short_window": 5,  # 相应参数
-      "long_window": 10  # 相应参数
-      此处支持任意多个参数
+      "short_window": 5,  # 快速移动平均线时间参数
+      "long_window": 10  # 慢速移动平均线时间参数
+    }
+
+    BollingerBandsStrategy 策略参数
+    {
+      "strategy_name": "BollingerBandsStrategy",  # 策略名称，此处支持已有的参数模板
+      "period": 20,  # 时间参数
+      "devfactor": 2,  # 倍数
+    }
+
+    KDJ 策略参数
+    {
+      "strategy_name": "KDJStrategy",  # 策略名称，此处支持已有的参数模板
+      "k_period": 9,  # 快速随机值
+      "d_period": 3,  # 慢速随机值
+      "j_period": 3  # 变动速度指标
+    }
+
+    MACD 策略参数
+    {
+      "strategy_name": "MACDStrategy",  # 策略名称，此处支持已有的参数模板
+      "period_me1": 12,  # 快速平滑移动平均线Ema时间参数
+      "period_me2": 26,  # 慢速平滑移动平均线Ema时间参数(
+      "period_signal": 9  # macd的时间参数n
+    }
+
+    RSI 策略参数
+    {
+      "strategy_name": "RSIStrategy",  # 策略名称，此处支持已有的参数模板
+      "period": 14,  # rsi的时间参数n
+      "top": 70,  # 买入策略
+      "down": 30  # 卖出策略
     }
     ```
     :param class_id: 班级id
